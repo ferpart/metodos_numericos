@@ -1,54 +1,16 @@
 """ Function root finder class """
 
+from sympy import lambdify
+
 class Methods():
     """ class containing all the root finding methods """
 
-    def __init__(self, function, exp_err=0.001, n_iter=10):
+    def __init__(self, function, x_value, exp_err=0.001, n_iter=10):
         self.exp_err = exp_err
         self.n_iter = n_iter
-        self.function = function
+        self.function = lambdify(x_value, function)
+        self.function_prime = lambdify(x_value, function.diff(x_value))
         self.error_a = 0
-
-    def newton_method(self, x_0, function_prime):
-        """ method used to implement the newton raphson method for obtaining a function's root """
-
-        self.error_a = 101
-        i = 0
-        while i < self.n_iter and self.exp_err < self.error_a:
-
-            x_1 = x_0-self.function(x_0)/function_prime(x_0)
-
-            if x_1 != 0:
-                self.error_a = error_formula(x_0, x_1)
-
-            x_0 = x_1
-            i += 1
-
-            print("Current iteration for newton method is %d, with root value of %.4f" %(i, x_0))
-        print("Final result using the newton method is %.4f with %d iterations" %(x_0, i))
-
-    def secant_method(self, x_0, x_1):
-        """ method used to implement the secant method for obtaining a function's root """
-
-        self.error_a = 101
-        i = 0
-        while i < self.n_iter and self.exp_err < self.error_a:
-
-            if x_1 != 0:
-                self.error_a = error_formula(x_0, x_1)
-
-            if self.error_a < self.exp_err:
-                break
-
-            x_temp_upper = self.function(x_1)*(x_0-x_1)
-            x_temp_lower = self.function(x_0)-self.function(x_1)
-
-            x_0 = x_1
-            x_1 = x_1-(x_temp_upper/x_temp_lower)
-            i += 1
-
-            print("Current iteration for secant method is %d, with root value of %.4f" %(i, x_1))
-        print("Final result using the secant method is %.4f with %d iterations" %(x_1, i))
 
     def bisection_method(self, x_0, x_1):
         """ method used to implement the bisection method for obtaining a function's root """
@@ -65,10 +27,10 @@ class Methods():
 
             test_func = self.function(x_0)*self.function(x_temp)
 
-            if test_func < 0:
-                x_1 = x_temp
-            elif test_func > 0:
+            if test_func > 0:
                 x_0 = x_temp
+            elif test_func < 0:
+                x_1 = x_temp
             else:
                 self.error_a = 0
 
@@ -110,6 +72,46 @@ class Methods():
                   %(i, x_old))
         print("Final result using regula falsi is %.4f with %d iterations" %(x_old, i))
 
+    def newton_method(self, x_0):
+        """ method used to implement the newton raphson method for obtaining a function's root """
+
+        self.error_a = 101
+        i = 0
+        while i < self.n_iter and self.exp_err < self.error_a:
+
+            x_1 = x_0-self.function(x_0)/self.function_prime(x_0)
+
+            if x_1 != 0:
+                self.error_a = error_formula(x_0, x_1)
+
+            x_0 = x_1
+            i += 1
+
+            print("Current iteration for newton method is %d, with root value of %.4f" %(i, x_0))
+        print("Final result using the newton method is %.4f with %d iterations" %(x_0, i))
+
+    def secant_method(self, x_0, x_1):
+        """ method used to implement the secant method for obtaining a function's root """
+
+        self.error_a = 101
+        i = 0
+        while i < self.n_iter and self.exp_err < self.error_a:
+
+            if x_1 != 0:
+                self.error_a = error_formula(x_0, x_1)
+
+            if self.error_a < self.exp_err:
+                break
+
+            x_temp_upper = self.function(x_1)*(x_0-x_1)
+            x_temp_lower = self.function(x_0)-self.function(x_1)
+
+            x_0 = x_1
+            x_1 = x_1-(x_temp_upper/x_temp_lower)
+            i += 1
+
+            print("Current iteration for secant method is %d, with root value of %.4f" %(i, x_1))
+        print("Final result using the secant method is %.4f with %d iterations" %(x_1, i))
 
 def error_formula(x_0, x_1):
     """ method used for calculating the error in the actual iteration """
